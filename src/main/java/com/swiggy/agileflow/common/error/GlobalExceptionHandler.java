@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ApiError> handleBusinessRule(BusinessRuleException ex, HttpServletRequest req) {
-        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), req, List.of());
+        return build(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage(), req, List.of());
     }
 
     @ExceptionHandler(Exception.class)
