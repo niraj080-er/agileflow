@@ -11,6 +11,7 @@ A production-ready backend foundation for a Jira-like project management platfor
 - [Architecture](#architecture)
 - [Module Overview](#module-overview)
 - [Database Schema](#database-schema)
+- [Database Migrations](#database-migrations)
 - [API Reference](#api-reference)
 - [Real-time (WebSocket)](#real-time-websocket)
 - [Getting Started](#getting-started)
@@ -197,7 +198,7 @@ Every mutation on an issue (field changes, status transitions, assignments) is r
 
 ## Database Schema
 
-The schema is managed directly by Hibernate (`ddl-auto` configured via `.env`). The following tables make up the core data model:
+The schema is managed by **Flyway** and versioned in SQL migrations. Hibernate is configured in `validate` mode — it does not modify the schema. See [Database Migrations](#database-migrations) for how migrations are applied. The following tables make up the core data model:
 
 ### Entity Relationship Overview
 
@@ -370,6 +371,92 @@ client.activate();
 ```
 
 Events are persisted to the `realtime_events` table before broadcast (outbox pattern), enabling replay of missed events after reconnection.
+
+---
+
+## Database Migrations
+
+The application uses **Flyway** for automated database schema versioning and initialization. Migrations are applied automatically on application startup.
+
+### Migration Files
+
+All SQL migrations are located in `src/main/resources/db/migration/`:
+
+| File | Purpose |
+|---|---|
+| `V1__initial_schema.sql` | Creates all tables, indexes, and constraints for the core data model. |
+| `V2__seed_data.sql` | Development-only seed data: 5 demo users, 2 projects, workflow statuses, sprints, issues, comments, and activity logs. |
+
+### Seed Data Overview
+
+`V2__seed_data.sql` populates the database with a realistic demo dataset:
+
+**Users (5 total, all password: `password`)**
+- `alice_dev` (Alice Chen) — Senior developer, AGILE project lead
+- `bob_dev` (Bob Smith) — Developer
+- `carol_qa` (Carol White) — QA engineer
+- `dan_pm` (Dan Patel) — Product manager, AGILE project owner
+- `eve_dev` (Eve Johnson) — Developer
+
+**Projects (2)**
+- **AGILE** (key: `AGILE`) — AgileFlow platform project with 5 sprints (1 completed, 2 active, 2 future)
+- **SHOP** (key: `SHOP`) — E-commerce backend with 5 sprints (0 completed, 1 active, 1 future)
+
+**Issues (15 across both projects)**
+- 2 EPICs with nested stories, tasks, and subtasks
+- 5 completed issues (in AGILE Sprint 1)
+- 4 in-progress issues
+- 3 backlog issues
+- Examples include authentication bugs, real-time search duplicates, and infrastructure work
+
+**Workflow Configuration**
+- Custom statuses per project (e.g., AGILE: "To Do" → "In Progress" → "In Review" → "Done")
+- Allowed transitions between statuses
+- Status categories (TODO, IN_PROGRESS, DONE)
+
+**Audit Trail & Activity**
+- Activity logs for all issue creation, status changes, and assignments
+- Comments on select issues with realistic feedback
+- Issue links (BLOCKS, RELATES_TO)
+- Watchers on critical issues
+
+### Managing Migrations
+
+#### Run migrations automatically (default)
+```bash
+docker-compose up
+```
+Migrations apply on startup unless disabled via `SPRING_FLYWAY_ENABLED=false`.
+
+#### Disable seed data in production
+To skip `V2__seed_data.sql` without disabling all migrations, remove or rename the file:
+```bash
+rm src/main/resources/db/migration/V2__seed_data.sql
+```
+
+Alternatively, use environment variables:
+```bash
+SPRING_FLYWAY_ENABLED=false docker-compose up
+```
+
+#### Baselining an existing database
+If you have an existing database and want Flyway to manage it going forward, set:
+```bash
+SPRING_FLYWAY_BASELINE_ON_MIGRATE=true
+```
+This creates a baseline entry for all existing migrations without re-running them.
+
+#### Manual migration (without Docker)
+```bash
+./mvnw spring-boot:run
+```
+The application runs migrations on startup via Spring Boot's auto-configuration.
+
+#### Verify migration status
+Check the `flyway_schema_history` table:
+```sql
+SELECT version, description, success, installed_on FROM flyway_schema_history;
+```
 
 ---
 

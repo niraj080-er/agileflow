@@ -1,10 +1,18 @@
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+WORKDIR /build
+
+COPY pom.xml .
+COPY src src
+
+RUN apk add --no-cache maven && \
+    mvn clean package -DskipTests
+
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-ARG JAR_FILE=target/*.jar
-
-COPY ${JAR_FILE} app.jar
+COPY --from=builder /build/target/*.jar app.jar
 
 EXPOSE 8080
 

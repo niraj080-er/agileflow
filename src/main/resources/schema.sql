@@ -1,7 +1,7 @@
 -- =============================================================================
--- AgileFlow Database Schema
--- PostgreSQL 16
--- Run once to initialize the database: psql -U postgres -d agileflow_db -f schema.sql
+-- AgileFlow Database Schema  (REFERENCE ONLY)
+-- This file is superseded by Flyway migration V1__initial_schema.sql.
+-- The application manages the schema automatically via Flyway on startup.
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

@@ -16,7 +16,7 @@ echo "Removing existing Docker images..."
 docker rmi "${IMAGE_NAME}:${VERSION}" 2>/dev/null || true
 docker rmi "${IMAGE_NAME}:latest" 2>/dev/null || true
 
-echo "Building version ${VERSION}"
+echo "Building Docker image version ${VERSION}"
 
 docker build \
   -t "${IMAGE_NAME}:${VERSION}" \
