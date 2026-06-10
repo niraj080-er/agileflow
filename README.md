@@ -379,43 +379,6 @@ Events are persisted to the `realtime_events` table before broadcast (outbox pat
 
 All configuration is managed through the `.env` file in the project root. `application.properties` reads exclusively from these variables — there are no hardcoded defaults in the codebase.
 
-```env
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=agileflow_db
-DB_USER=postgres
-DB_PASSWORD=postgres
-
-# Docker
-DOCKER_DB_HOST=postgres
-POSTGRES_VERSION=16-alpine
-POSTGRES_CONTAINER_NAME=agileflow-postgres
-BACKEND_CONTAINER_NAME=agileflow-backend
-BACKEND_IMAGE=agileflow-backend:latest
-RESTART_POLICY=unless-stopped
-JAVA_VERSION=21
-
-# Application
-SERVER_PORT=8090
-SERVER_SERVLET_CONTEXT_PATH=/
-
-# Logging
-LOGGING_LEVEL_ROOT=INFO
-LOGGING_LEVEL_COM_SWIGGY=DEBUG
-
-# JPA
-SPRING_JPA_HIBERNATE_DDL_AUTO=validate
-SPRING_JPA_SHOW_SQL=false
-
-# Swagger
-SPRINGDOC_SWAGGER_ENABLED=true
-SPRINGDOC_SWAGGER_UI_PATH=/swagger-ui.html
-```
-
-> **Security note:** `.env` is listed in `.gitignore` and must never be committed to version control. It contains real credentials.
-
----
 
 ## Getting Started
 
