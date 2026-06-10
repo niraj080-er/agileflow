@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-16-alpine}
+    container_name: ${POSTGRES_CONTAINER_NAME:-agileflow-postgres}
+    restart: ${RESTART_POLICY:-unless-stopped}
+    environment:
+      POSTGRES_DB: ${DB_NAME:-agileflow_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-agileflow_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  agileflow-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - JAVA_VERSION=${JAVA_VERSION:-21}
+    image: ${BACKEND_IMAGE:-agileflow-backend:latest}
+    container_name: ${BACKEND_CONTAINER_NAME:-agileflow-backend}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DOCKER_DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_NAME:-agileflow_db}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-validate}
+      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT:-INFO}
+      LOGGING_LEVEL_COM_SWIGGY: ${LOGGING_LEVEL_COM_SWIGGY:-DEBUG}
+      SPRINGDOC_SWAGGER_ENABLED: ${SPRINGDOC_SWAGGER_ENABLED:-true}
+    restart: ${RESTART_POLICY:-unless-stopped}
+
+volumes:
+  postgres_data:
