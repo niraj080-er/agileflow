@@ -13,10 +13,8 @@ A production-ready backend foundation for a Jira-like project management platfor
 - [Database Schema](#database-schema)
 - [API Reference](#api-reference)
 - [Real-time (WebSocket)](#real-time-websocket)
-- [Environment Configuration](#environment-configuration)
 - [Getting Started](#getting-started)
 - [Running with Docker](#running-with-docker)
-- [Running Tests](#running-tests)
 - [Error Handling](#error-handling)
 
 ---
@@ -388,34 +386,8 @@ All configuration is managed through the `.env` file in the project root. `appli
 - Maven 3.9+ (or use the included `./mvnw` wrapper)
 - PostgreSQL 16 (or Docker to run it as a container)
 
-### 1. Configure environment
 
-Edit `.env` with your database credentials if they differ from the defaults.
-
-### 2. Start PostgreSQL
-
-**Using Docker (recommended):**
-```bash
-docker-compose up -d postgres
-```
-
-**Using a local PostgreSQL installation:** ensure a database named `agileflow_db` exists and the credentials match `.env`.
-
-### 3. Run the application
-
-```bash
-./dev-run.sh
-```
-
-This script loads `.env`, prints the active configuration, and starts the Spring Boot application.
-
-**Manual equivalent:**
-```bash
-source .env
-./mvnw spring-boot:run
-```
-
-### 4. Verify
+### Verify the application is running by accessing the following URLs:
 
 | URL | Description |
 |---|---|
@@ -450,19 +422,6 @@ docker-compose down
 docker-compose down -v
 ```
 
-The backend image is built from `eclipse-temurin:21-jre-alpine` and exposes port 8080 inside Docker (mapped to `SERVER_PORT` on the host).
-
----
-
-## Running Tests
-
-```bash
-./mvnw clean verify
-```
-
-The test suite covers domain unit tests — issue hierarchy policy and workflow transition validation.
-
----
 
 ## Error Handling
 
