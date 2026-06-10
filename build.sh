@@ -4,14 +4,19 @@ set -e
 
 IMAGE_NAME="agileflow-backend"
 
-VERSION=$(./mvnw help:evaluate \
-  -Dexpression=project.version \
-  -q \
-  -DforceStdout)
+VERSION=$(
+  mvn help:evaluate \
+    -Dexpression=project.version \
+    -q \
+    -DforceStdout
+)
+
+echo "Removing existing Docker images..."
+
+docker rmi "${IMAGE_NAME}:${VERSION}" 2>/dev/null || true
+docker rmi "${IMAGE_NAME}:latest" 2>/dev/null || true
 
 echo "Building version ${VERSION}"
-
-./mvnw clean package -DskipTests
 
 docker build \
   -t "${IMAGE_NAME}:${VERSION}" \
